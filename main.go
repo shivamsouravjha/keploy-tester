@@ -58,7 +58,7 @@ func main() {
 	logger, _ := zapConfig.Build()
 	zap.ReplaceGlobals(logger)
 	config.Get()
-	port := os.Getenv("PORT")
+	port := config.Get().ServerPort
 	if port == "" {
 		port = "4000"
 	}
