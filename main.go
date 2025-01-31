@@ -5,6 +5,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	_ "segwise/utils"
+
+	_ "segwise/clients/postgres"
+
+	_ "segwise/clients/redis"
+	"segwise/config"
+	"segwise/routes"
 	"syscall"
 	"time"
 
@@ -52,21 +59,14 @@ func GracefulShutdown(server *http.Server) {
 }
 
 func main() {
-	config := zap.NewProductionConfig()
-	config.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
-	logger, _ := config.Build()
-	zap.ReplaceGlobals(logger)
-	port := os.Getenv("PORT")
+	config.Get()
+	port := config.Get().ServerPort
 	if port == "" {
 		port = "4000"
 	}
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-
-	// Example route
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "Server is running!"})
-	})
+	routes.Routes(router)
 
 	server := &http.Server{
 		Addr:    ":" + port,
