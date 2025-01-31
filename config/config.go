@@ -1,11 +1,11 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -42,12 +42,12 @@ func init() {
 	case "stage":
 		configFilePath = "./config/.env.stage"
 	}
-	fmt.Println("reading env from: ", configFilePath)
+	zap.L().Info("Loading env file", zap.String("path", configFilePath))
 
 	e := godotenv.Load(configFilePath)
 	if e != nil {
-		fmt.Println("error loading env: ", e)
-		panic(e.Error())
+		zap.L().Error("Error loading .env file", zap.Error(e))
+		return
 	}
 	config.AppName = os.Getenv("SERVICE_NAME")
 	config.AppEnv = appEnv
