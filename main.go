@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"segwise/config"
 	"syscall"
 	"time"
 
@@ -52,10 +53,11 @@ func GracefulShutdown(server *http.Server) {
 }
 
 func main() {
-	config := zap.NewProductionConfig()
-	config.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
-	logger, _ := config.Build()
+	zapConfig := zap.NewProductionConfig()
+	zapConfig.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
+	logger, _ := zapConfig.Build()
 	zap.ReplaceGlobals(logger)
+	config.Get()
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "4000"
