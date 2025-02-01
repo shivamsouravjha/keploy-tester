@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"segwise/config"
 	_ "segwise/utils"
 
 	"github.com/go-redis/redis"
@@ -14,11 +15,12 @@ func RedisSession() *redis.Client {
 }
 
 func init() {
+
 	// Connect to the Redis server
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // Redis server address
-		Password: "",               // No password for local Redis, set it if needed
-		DB:       0,                // Default DB
+		Addr:     config.Get().RedisAddr, // Redis server address
+		Password: "",                     // No password for local Redis, set it if needed
+		DB:       0,                      // Default DB
 	})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {

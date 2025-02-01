@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"log"
 	"segwise/config"
 	"segwise/models"
 
@@ -24,7 +23,6 @@ func init() {
 		config.Get().DBName,
 		config.Get().DBPort,
 	)
-
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		zap.L().Error("Error connecting to PostgreSQL", zap.Error(err))
@@ -32,7 +30,7 @@ func init() {
 	}
 	err = db.AutoMigrate(&models.Trigger{}, &models.EventLog{})
 	if err != nil {
-		log.Fatal("Database migration failed:", err)
+		zap.L().Info("Database migration failed:", zap.Any("error", err))
 	}
 
 	zap.L().Info("Connected to PostgreSQL")

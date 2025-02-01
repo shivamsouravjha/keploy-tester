@@ -1,0 +1,81 @@
+basePath: /api
+definitions:
+  models.Trigger:
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: This API allows users to create and manage event triggers
+  title: Event Trigger API
+  version: "1.0"
+paths:
+  /api/triggers:
+    get:
+      description: Fetch all stored triggers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Trigger'
+            type: array
+      summary: Get all triggers
+      tags:
+      - Triggers
+    post:
+      consumes:
+      - application/json
+      description: Creates a scheduled or API trigger
+      parameters:
+      - description: Trigger object
+        in: body
+        name: trigger
+        required: true
+        schema:
+          $ref: '#/definitions/models.Trigger'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Trigger'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new trigger
+      tags:
+      - Triggers
+  /api/triggers/{id}/execute:
+    post:
+      description: Triggers an event immediately for testing
+      parameters:
+      - description: Trigger ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Manually execute a trigger
+      tags:
+      - Triggers
+swagger: "2.0"
