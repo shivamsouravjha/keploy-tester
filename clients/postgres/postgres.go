@@ -1,8 +1,10 @@
-package db
+package postgres
 
 import (
 	"fmt"
+	"log"
 	"segwise/config"
+	"segwise/models"
 
 	_ "segwise/utils"
 
@@ -27,6 +29,10 @@ func init() {
 	if err != nil {
 		zap.L().Error("Error connecting to PostgreSQL", zap.Error(err))
 		return
+	}
+	err = db.AutoMigrate(&models.Trigger{}, &models.EventLog{})
+	if err != nil {
+		log.Fatal("Database migration failed:", err)
 	}
 
 	zap.L().Info("Connected to PostgreSQL")

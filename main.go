@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"segwise/helpers"
 	_ "segwise/utils"
 
 	_ "segwise/clients/postgres"
@@ -65,6 +66,9 @@ func main() {
 		port = "4000"
 	}
 	router := gin.Default()
+
+	go helpers.StartScheduler()
+
 	router.Use(CORSMiddleware())
 	routes.Routes(router)
 
