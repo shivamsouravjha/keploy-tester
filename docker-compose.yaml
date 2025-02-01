@@ -1,12 +1,10 @@
-version: "3.8"
-
 services:
   app:
     build: .
     ports:
       - "4000:4000"
     depends_on:
-      - db
+      - postgres
       - redis
     environment:
       - DB_HOST=db

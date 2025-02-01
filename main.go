@@ -16,7 +16,13 @@ import (
 	"syscall"
 	"time"
 
+	_ "segwise/docs" // Import Swagger docs
+
+	swaggerFiles "github.com/swaggo/files" // Make sure this alias is correct
+
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"go.uber.org/zap"
 )
 
@@ -59,6 +65,11 @@ func GracefulShutdown(server *http.Server) {
 	}()
 }
 
+// @title Event Trigger API
+// @version 1.0
+// @description This API allows users to create and manage event triggers
+// @host localhost:4000
+// @BasePath /api
 func main() {
 	config.Get()
 	port := config.Get().ServerPort
@@ -67,10 +78,10 @@ func main() {
 	}
 	router := gin.Default()
 
-	go helpers.StartScheduler()
-
 	router.Use(CORSMiddleware())
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	routes.Routes(router)
+	go helpers.StartScheduler()
 
 	server := &http.Server{
 		Addr:    ":" + port,

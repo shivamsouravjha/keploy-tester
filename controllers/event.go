@@ -11,7 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ExecuteTrigger handles manual execution of a trigger
+// ExecuteTrigger manually triggers an event
+// @Summary Manually execute a trigger
+// @Description Triggers an event immediately for testing
+// @Tags Triggers
+// @Produce json
+// @Param id path string true "Trigger ID"
+// @Success 200 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /api/triggers/{id}/execute [post]
 func ExecuteTrigger(c *gin.Context) {
 
 	id := c.Param("id")

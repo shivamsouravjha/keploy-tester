@@ -1,0 +1,123 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This API allows users to create and manage event triggers",
+        "title": "Event Trigger API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:4000",
+    "basePath": "/api",
+    "paths": {
+        "/api/triggers": {
+            "get": {
+                "description": "Fetch all stored triggers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Get all triggers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Trigger"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a scheduled or API trigger",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Create a new trigger",
+                "parameters": [
+                    {
+                        "description": "Trigger object",
+                        "name": "trigger",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Trigger"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Trigger"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/triggers/{id}/execute": {
+            "post": {
+                "description": "Triggers an event immediately for testing",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Manually execute a trigger",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Trigger ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Trigger": {
+            "type": "object"
+        }
+    }
+}

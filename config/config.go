@@ -37,22 +37,20 @@ func init() {
 	configFilePath := "./config/.env"
 
 	switch appEnv {
-	case "production":
-		configFilePath = "./config/.env.prod"
-	case "stage":
-		configFilePath = "./config/.env.stage"
+	case "dev":
+		configFilePath = "./config/.env"
+		e := godotenv.Load(configFilePath)
+		if e != nil {
+			zap.L().Error("Error loading .env file", zap.Error(e))
+			return
+		}
 	}
 	zap.L().Info("Loading env file", zap.String("path", configFilePath))
 
-	e := godotenv.Load(configFilePath)
-	if e != nil {
-		zap.L().Error("Error loading .env file", zap.Error(e))
-		return
-	}
 	config.AppName = os.Getenv("SERVICE_NAME")
 	config.AppEnv = appEnv
-	config.RedisAddr = os.Getenv("REDIS_ADDR")
 	config.DBUserName = os.Getenv("DB_USERNAME")
+	config.RedisAddr = os.Getenv("REDIS_HOST")
 	config.DBHostReader = os.Getenv("DB_HOST_READER")
 	config.DBHostWriter = os.Getenv("DB_HOST_WRITER")
 	config.DBPort = os.Getenv("DB_PORT")

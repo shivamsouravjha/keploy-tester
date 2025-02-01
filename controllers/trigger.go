@@ -9,7 +9,16 @@ import (
 	"go.uber.org/zap"
 )
 
-// CreateTrigger handles creating a new trigger
+// CreateTrigger creates a new event trigger
+// @Summary Create a new trigger
+// @Description Creates a scheduled or API trigger
+// @Tags Triggers
+// @Accept json
+// @Produce json
+// @Param trigger body models.Trigger true "Trigger object"
+// @Success 201 {object} models.Trigger
+// @Failure 400 {object} map[string]string
+// @Router /api/triggers [post]
 func CreateTrigger(c *gin.Context) {
 	db := postgres.GetDB()
 
@@ -37,6 +46,12 @@ func CreateTrigger(c *gin.Context) {
 }
 
 // GetTriggers retrieves all triggers
+// @Summary Get all triggers
+// @Description Fetch all stored triggers
+// @Tags Triggers
+// @Produce json
+// @Success 200 {array} models.Trigger
+// @Router /api/triggers [get]
 func GetTriggers(c *gin.Context) {
 	var triggers []models.Trigger
 	db := postgres.GetDB()
