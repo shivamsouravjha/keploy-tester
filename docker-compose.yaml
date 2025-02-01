@@ -1,6 +1,22 @@
 version: "3.8"
 
 services:
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - DB_USER=admin
+      - DB_PASSWORD=password
+      - DB_NAME=event_trigger_db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    restart: always
   postgres:
     image: postgres:15
     container_name: event_trigger_postgres
