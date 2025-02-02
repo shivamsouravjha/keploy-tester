@@ -28,7 +28,7 @@ func init() {
 		zap.L().Error("Error connecting to PostgreSQL", zap.Error(err))
 		return
 	}
-	err = db.AutoMigrate(&models.Trigger{}, &models.EventLog{})
+	err = db.AutoMigrate(&models.Trigger{}, &models.EventLog{}, &models.User{})
 	if err != nil {
 		zap.L().Info("Database migration failed:", zap.Any("error", err))
 	}

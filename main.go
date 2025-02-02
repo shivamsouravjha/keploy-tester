@@ -70,6 +70,9 @@ func GracefulShutdown(server *http.Server) {
 // @description This API allows users to create and manage event triggers
 // @host localhost:4000
 // @BasePath /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	config.Get()
 	port := config.Get().ServerPort

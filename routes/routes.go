@@ -2,6 +2,7 @@ package routes
 
 import (
 	"segwise/controllers"
+	"segwise/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,16 +12,23 @@ func Routes(r *gin.Engine) {
 	v1 := r.Group("/api")
 
 	{
-		v1.POST("/triggers", controllers.CreateTrigger)
-		v1.GET("/triggers", controllers.GetTriggers)
-		v1.GET("/triggers/:id", controllers.GetTriggerByID)
-		v1.PUT("/triggers/:id", controllers.UpdateTrigger)
-		v1.DELETE("/triggers/:id", controllers.DeleteTrigger)
-		v1.POST("/triggers/:id/execute", controllers.ExecuteTrigger)
+		// Authentication
+		v1.POST("/register", controllers.RegisterUser)
+		v1.POST("/login", controllers.LoginUser)
 
-		v1.GET("/events", controllers.GetActiveEvents)
-		v1.GET("/events/archived", controllers.GetArchivedEvents)
-		v1.DELETE("/events/purge", controllers.PurgeOldEvents)
+		// Protected Routes
+		auth := v1.Group("/")
+		auth.Use(middleware.JWTAuthMiddleware())
+		auth.POST("/triggers", controllers.CreateTrigger)
+		auth.GET("/triggers", controllers.GetTriggers)
+		auth.GET("/triggers/:id", controllers.GetTriggerByID)
+		auth.PUT("/triggers/:id", controllers.UpdateTrigger)
+		auth.DELETE("/triggers/:id", controllers.DeleteTrigger)
+		auth.POST("/triggers/:id/execute", controllers.ExecuteTrigger)
+
+		auth.GET("/events", controllers.GetActiveEvents)
+		auth.GET("/events/archived", controllers.GetArchivedEvents)
+		auth.DELETE("/events/purge", controllers.PurgeOldEvents)
 
 	}
 }
