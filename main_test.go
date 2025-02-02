@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Test generated using Keploy
 func TestGracefulShutdown(t *testing.T) {
 	server := &http.Server{
 		Addr:    ":0",
@@ -48,7 +47,6 @@ func TestGracefulShutdown(t *testing.T) {
 	}
 }
 
-// Test generated using Keploy
 func TestCORSMiddleware_WithOriginHeader(t *testing.T) {
 	// Create a test context
 	w := httptest.NewRecorder()
@@ -77,7 +75,6 @@ func TestCORSMiddleware_WithOriginHeader(t *testing.T) {
 	}
 }
 
-// Test generated using Keploy
 func TestCORSMiddleware_OptionsMethod(t *testing.T) {
 	// Create a test context
 	w := httptest.NewRecorder()

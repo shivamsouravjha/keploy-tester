@@ -7,7 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// Test generated using Keploy
 func TestGenerateJWT_ValidToken(t *testing.T) {
 	username := "testuser"
 	token, err := generateJWT(username)
@@ -36,7 +35,6 @@ func TestGenerateJWT_ValidToken(t *testing.T) {
 	}
 }
 
-// Test generated using Keploy
 func TestGenerateJWT_SpecialCharactersUsername(t *testing.T) {
 	username := "user!@#$%^&*()"
 	tokenString, err := generateJWT(username)
