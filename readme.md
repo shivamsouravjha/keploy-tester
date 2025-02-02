@@ -84,15 +84,3 @@ curl -X DELETE "http://localhost:4000/api/triggers/{trigger_id}"
 
 The project is deployed at:  
 🔗 **[Event Trigger App](https://event-trigger-app-bitter-bird-4607.fly.dev/swagger/index.html)**
-
----
-
-## 💰 Cost Estimation
-Fly.io Free Tier Usage:
-
-* Compute (256MB RAM, 1 vCPU)	Free
-* PostgreSQL (LiteDB)	Free
-* Redis (Upstash)	Free
-* Bandwidth (5GB limit)	Free
-* Estimated Cost for 30 Days (24x7, 5 queries/day): $0 (Free Tier)
-
