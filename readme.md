@@ -20,6 +20,34 @@ A Golang-based API to create and manage event triggers (scheduled & API-based).
 
 ---
 
+## 📖 **API Documentation**
+### 🔹 **Swagger UI**
+- **Local**: `http://localhost:4000/swagger/index.html`
+- **Deployed**: `https://event-trigger-app-bitter-bird-4607.fly.dev/swagger/index.html`
+
+### 🔹 **Endpoints**
+#### **Trigger Management**
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| `POST` | `/api/triggers` | Create a new trigger |
+| `GET` | `/api/triggers` | Get all triggers |
+| `GET` | `/api/triggers/:id` | Get trigger details |
+| `PUT` | `/api/triggers/:id` | Update a trigger |
+| `DELETE` | `/api/triggers/:id` | Delete a trigger |
+
+#### **Trigger Execution**
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| `POST` | `/api/triggers/:id/execute` | Manually execute a trigger |
+
+#### **Event Logs**
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| `GET` | `/api/events` | Get recent event logs (last 2 hours) |
+| `GET` | `/api/events/archived` | Get archived event logs |
+| `DELETE` | `/api/events/purge` | Purge old events |
+
+
 ## 🛠 Local Setup
 
 ### 1️⃣ Prerequisites
@@ -83,6 +111,33 @@ curl -X DELETE "http://localhost:4000/api/triggers/{trigger_id}"
 ## 🚀 Deployment (Fly.io)
 
 The project is deployed at:  
-🔗 **[Event Trigger App](https://event-trigger-app.fly.dev)**
+🔗 **[Event Trigger App](https://event-trigger-app-bitter-bird-4607.fly.dev/swagger/index.html)**
+
+---
+
+## 💰 Cost Estimation
+Fly.io Free Tier Usage:
+
+* Compute (256MB RAM, 1 vCPU)	Free
+* PostgreSQL (LiteDB)	Free
+* Redis (Upstash)	Free
+* Bandwidth (5GB limit)	Free
+* Estimated Cost for 30 Days (24x7, 5 queries/day): $0 (Free Tier)
+
+
+## ✅ **Testing**
+
+Run tests:
+```sh
+go test -v ./... -cover
+```
+
+---
+
+## 📌 **Assumptions**
+- Redis is **only for caching event logs**.
+- API triggers **use flat JSON payloads**.
+- Events **expire in 48 hours** (2 hours active, 46 hours archived).
+- Fly.io **free tier** is used, so **scaling is limited**.
 
 ---

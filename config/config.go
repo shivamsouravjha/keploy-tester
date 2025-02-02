@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	_ "segwise/utils"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -22,6 +23,8 @@ type Config struct {
 	DBMaxIdleConnections int
 	ServerPort           string
 	JWT_SECRET           string
+	RedisPassword        string
+	Host                 string
 }
 
 var config Config
@@ -34,18 +37,16 @@ func init() {
 		appEnv = "dev"
 	}
 
-	configFilePath := "./config/.env"
-
 	switch appEnv {
 	case "dev":
-		configFilePath = "./config/.env"
+		configFilePath := "./config/.env"
 		e := godotenv.Load(configFilePath)
 		if e != nil {
 			zap.L().Error("Error loading .env file", zap.Error(e))
 			return
 		}
 	}
-	zap.L().Info("Loading env file", zap.String("path", configFilePath))
+	zap.L().Info("Loading env")
 
 	config.AppName = os.Getenv("SERVICE_NAME")
 	config.AppEnv = appEnv
@@ -56,10 +57,12 @@ func init() {
 	config.DBPort = os.Getenv("DB_PORT")
 	config.DBPassword = os.Getenv("DB_PASSWORD")
 	config.DBName = os.Getenv("DB_NAME")
+	config.RedisPassword = os.Getenv("REDIS_PASSWORD")
 	config.DBMaxIdleConnections, _ = strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONENCTION"))
 	config.DBMaxOpenConnections, _ = strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNECTIONS"))
 	config.ServerPort = os.Getenv("SERVER_PORT")
 	config.JWT_SECRET = os.Getenv("JWT_SECRET")
+	config.Host = os.Getenv("HOST")
 }
 
 func Get() Config {

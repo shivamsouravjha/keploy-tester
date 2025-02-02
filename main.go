@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"segwise/docs"
 	"segwise/helpers"
 	_ "segwise/utils"
 
@@ -70,6 +71,9 @@ func GracefulShutdown(server *http.Server) {
 // @description This API allows users to create and manage event triggers
 // @host localhost:4000
 // @BasePath /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	config.Get()
 	port := config.Get().ServerPort
@@ -87,6 +91,7 @@ func main() {
 		Addr:    ":" + port,
 		Handler: router,
 	}
+	docs.SwaggerInfo.Host = config.Get().Host
 
 	GracefulShutdown(server)
 

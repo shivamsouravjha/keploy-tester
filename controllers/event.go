@@ -19,7 +19,8 @@ import (
 // @Param id path string true "Trigger ID"
 // @Success 200 {object} map[string]string
 // @Failure 404 {object} map[string]string
-// @Router /api/triggers/{id}/execute [post]
+// @Router /triggers/{id}/execute [post]
+// @Security BearerAuth
 func ExecuteTrigger(c *gin.Context) {
 
 	id := c.Param("id")
@@ -52,7 +53,12 @@ func ExecuteTrigger(c *gin.Context) {
 
 }
 
-// GetActiveEvents retrieves recent event logs
+// @Summary Get active event logs
+// @Description Fetch event logs from the last 2 hours
+// @Produce  json
+// @Success 200 {array} models.EventLog
+// @Router /events [get]
+// @Security BearerAuth
 func GetActiveEvents(c *gin.Context) {
 	db := postgres.GetDB()
 
@@ -62,7 +68,12 @@ func GetActiveEvents(c *gin.Context) {
 
 }
 
-// GetArchivedEvents retrieves archived event logs
+// @Summary Get archived event logs
+// @Description Fetch logs that are older than 2 hours but still within 48 hours
+// @Produce  json
+// @Success 200 {array} models.EventLog
+// @Router /events/archived [get]
+// @Security BearerAuth
 func GetArchivedEvents(c *gin.Context) {
 	db := postgres.GetDB()
 
@@ -72,7 +83,11 @@ func GetArchivedEvents(c *gin.Context) {
 
 }
 
-// PurgeOldEvents deletes expired logs
+// @Summary Purge old event logs
+// @Description Deletes logs older than 48 hours
+// @Success 200 {string} string "Old events purged"
+// @Router /events/purge [delete]
+// @Security BearerAuth
 func PurgeOldEvents(c *gin.Context) {
 	db := postgres.GetDB()
 
