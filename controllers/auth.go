@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"segwise/clients/postgres"
 	"segwise/config"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -76,14 +76,14 @@ func LoginUser(c *gin.Context) {
 
 	var user models.User
 	if err := db.Where("username = ?", input.Username).First(&user).Error; err != nil {
-		fmt.Println("Error: ", err)
+		zap.L().Error("User not found", zap.Error(err))
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	fmt.Println([]byte(user.Password), []byte(input.Password), "asd")
 	// Verify password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
 	if err != nil {
+		zap.L().Error("Invalid password", zap.Error(err))
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -91,6 +91,7 @@ func LoginUser(c *gin.Context) {
 	// Generate JWT token
 	token, err := generateJWT(user.Username)
 	if err != nil {
+		zap.L().Error("Failed to generate token", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}

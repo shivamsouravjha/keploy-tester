@@ -24,6 +24,7 @@ type Config struct {
 	ServerPort           string
 	JWT_SECRET           string
 	RedisPassword        string
+	Host                 string
 }
 
 var config Config
@@ -61,6 +62,7 @@ func init() {
 	config.DBMaxOpenConnections, _ = strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONNECTIONS"))
 	config.ServerPort = os.Getenv("SERVER_PORT")
 	config.JWT_SECRET = os.Getenv("JWT_SECRET")
+	config.Host = os.Getenv("HOST")
 }
 
 func Get() Config {

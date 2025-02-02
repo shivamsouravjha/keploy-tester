@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"segwise/docs"
 	"segwise/helpers"
 	_ "segwise/utils"
 
@@ -90,6 +91,7 @@ func main() {
 		Addr:    ":" + port,
 		Handler: router,
 	}
+	docs.SwaggerInfo.Host = config.Get().Host
 
 	GracefulShutdown(server)
 
