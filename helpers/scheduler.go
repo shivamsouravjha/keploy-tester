@@ -2,9 +2,12 @@ package helpers
 
 import (
 	"encoding/json"
+	"fmt"
+	"regexp"
 	"segwise/clients/postgres"
 	redis_client "segwise/clients/redis"
 	"segwise/models"
+	"strconv"
 	"sync"
 	"time"
 
@@ -66,7 +69,7 @@ func (s *Scheduler) syncTriggers() {
 		// If trigger is new, add it
 		if _, exists := s.Jobs[trigger.ID]; !exists {
 			if trigger.OneTime {
-				duration, err := time.ParseDuration(trigger.Schedule) // Example: "10m"
+				duration, err := parseOneTimeSchedule(trigger.Schedule)
 				if err == nil {
 					go func(t models.Trigger) {
 						time.Sleep(duration)
@@ -74,7 +77,9 @@ func (s *Scheduler) syncTriggers() {
 					}(trigger)
 					zap.L().Info("Scheduled one-time trigger: %s in %s", zap.Any("triggerID", trigger.ID), zap.Any("scheduler", trigger.Schedule))
 				} else {
-					zap.L().Error("Invalid one-time schedule:", zap.Error(err))
+					zap.L().Error("Invalid one-time schedule",
+						zap.String("schedule", trigger.Schedule),
+						zap.Error(err))
 				}
 			} else {
 				jobID, err := s.Cron.AddFunc(trigger.Schedule, func() {
@@ -126,4 +131,35 @@ func (s *Scheduler) executeScheduledTrigger(trigger models.Trigger) {
 			zap.L().Info("One-time trigger removed: %s", zap.Any("triggerID", trigger.ID))
 		}
 	}
+}
+
+// parseOneTimeSchedule converts different formats like "in 10 seconds" or "10s" into time.Duration
+func parseOneTimeSchedule(schedule string) (time.Duration, error) {
+	duration, err := time.ParseDuration(schedule)
+	if err == nil {
+		return duration, nil
+	}
+
+	re := regexp.MustCompile(`in (\d+) (seconds|minutes|hours)`)
+	matches := re.FindStringSubmatch(schedule)
+	if len(matches) == 3 {
+		amount, err := strconv.Atoi(matches[1])
+		if err != nil {
+			return 0, fmt.Errorf("invalid number in schedule")
+		}
+
+		unit := matches[2]
+		switch unit {
+		case "seconds":
+			return time.Duration(amount) * time.Second, nil
+		case "minutes":
+			return time.Duration(amount) * time.Minute, nil
+		case "hours":
+			return time.Duration(amount) * time.Hour, nil
+		default:
+			return 0, fmt.Errorf("unsupported time unit")
+		}
+	}
+
+	return 0, fmt.Errorf("invalid one-time schedule format: %s", schedule)
 }
