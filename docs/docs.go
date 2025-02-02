@@ -274,6 +274,11 @@ const docTemplate = `{
         },
         "/triggers/test/api": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "This endpoint sends an API request with a **test payload** to a specified endpoint without saving it as a trigger.",
                 "consumes": [
                     "application/json"
@@ -323,6 +328,11 @@ const docTemplate = `{
         },
         "/triggers/test/scheduled": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "This endpoint allows users to test a scheduled event trigger **without saving it permanently**.",
                 "consumes": [
                     "application/json"

@@ -149,6 +149,7 @@ type TriggerRequest struct {
 // @Failure 400 {object} map[string]interface{} "Invalid request payload"
 // @Failure 500 {object} map[string]interface{} "Error in executing API trigger"
 // @Router /triggers/test/api [post]
+// @Security BearerAuth
 func TestAPITrigger(c *gin.Context) {
 	var request TriggerRequest
 	if err := c.ShouldBindJSON(&request); err != nil {

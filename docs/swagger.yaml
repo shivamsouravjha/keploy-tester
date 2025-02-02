@@ -349,6 +349,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Test a one-time API trigger
       tags:
       - Testing API
@@ -378,6 +380,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Test a one-time scheduled trigger
       tags:
       - Testing API

@@ -114,6 +114,7 @@ type ScheduledTriggerTestRequest struct {
 // @Success 200 {object} map[string]interface{} "Trigger executed successfully"
 // @Failure 400 {object} map[string]interface{} "Invalid request payload"
 // @Router /triggers/test/scheduled [post]
+// @Security BearerAuth
 func TestScheduledTrigger(c *gin.Context) {
 	redisClient := redis_client.RedisSession()
 	var request ScheduledTriggerTestRequest
