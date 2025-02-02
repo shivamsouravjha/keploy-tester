@@ -71,7 +71,7 @@ The API will run on `http://localhost:4000`.
 
 ## 📡 API Endpoints
 
-### **1️⃣ Create a Scheduled Trigger**
+### **1️ Register a New User**
 ```sh
 curl -X POST "http://localhost:4000/api/triggers"      -H "Content-Type: application/json"      -d '{
            "type": "scheduled",
@@ -81,7 +81,7 @@ curl -X POST "http://localhost:4000/api/triggers"      -H "Content-Type: applica
          }'
 ```
 
-### **2️⃣ Create an API Trigger**
+### **2️ Login and Get JWT Token**
 ```sh
 curl -X POST "http://localhost:4000/api/triggers"      -H "Content-Type: application/json"      -d '{
            "type": "api",
@@ -91,20 +91,108 @@ curl -X POST "http://localhost:4000/api/triggers"      -H "Content-Type: applica
          }'
 ```
 
-### **3️⃣ Execute a Trigger Manually**
+### **3️ Create a Scheduled Trigger**
 ```sh
-curl -X POST "http://localhost:4000/api/triggers/{trigger_id}/execute"
+curl -X POST "http://localhost:4000/api/triggers" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+     -d '{
+           "type": "scheduled",
+           "schedule": "*/10 * * * *", 
+           "endpoint": null,
+           "payload": null
+         }'
 ```
 
-### **4️⃣ Get All Triggers**
+### **4️ Create an API Trigger**
 ```sh
-curl -X GET "http://localhost:4000/api/triggers"
+curl -X POST "http://localhost:4000/api/triggers" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+     -d '{
+           "type": "api",
+           "schedule": null,
+           "endpoint": "http://example.com/webhook",
+           "payload": "{ \"message\": \"Hello, world!\" }"
+         }'
 ```
 
-### **5️⃣ Delete a Trigger**
+### **5️ Get All Triggers**
 ```sh
-curl -X DELETE "http://localhost:4000/api/triggers/{trigger_id}"
+curl -X GET "http://localhost:4000/api/triggers" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
 ```
+
+### **6 Get a Trigger by ID**
+```sh
+curl -X GET "http://localhost:4000/api/triggers/{trigger_id}" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+### **7 Update a Trigger**
+```sh
+curl -X PUT "http://localhost:4000/api/triggers/{trigger_id}" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+     -d '{
+           "type": "scheduled",
+           "schedule": "*/5 * * * *", 
+           "endpoint": null,
+           "payload": null
+         }'
+```
+
+### **8 Delete a Trigger**
+```sh
+curl -X DELETE "http://localhost:4000/api/triggers/{trigger_id}" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+### **9 Execute a Trigger Manually**
+```sh
+curl -X POST "http://localhost:4000/api/triggers/{trigger_id}/execute" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+### **10 Get All Active Events**
+```sh
+curl -X GET "http://localhost:4000/api/events" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+### **11 Get All Archived Events**
+```sh
+curl -X GET "http://localhost:4000/api/events/archived" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+### **12 Purge Old Archived Events**
+```sh
+curl -X DELETE "http://localhost:4000/api/events/purge" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+### **13 Test a One-Time Scheduled Trigger**
+```sh
+curl -X POST "http://localhost:4000/api/triggers/test/scheduled" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+     -d '{
+           "delay": 5
+         }'
+```
+
+### **14 Test a One-Time API Trigger**
+```sh
+curl -X POST "http://localhost:4000/api/triggers/test/api" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+     -d '{
+           "endpoint": "http://example.com/webhook",
+           "payload": { "test": "API payload test" }
+         }'
+```
+
 
 ---
 
