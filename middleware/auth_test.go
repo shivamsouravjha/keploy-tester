@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Test generated using Keploy
 func TestJWTAuthMiddleware_InvalidToken_Returns401(t *testing.T) {
 	// Create a test context
 	w := httptest.NewRecorder()
