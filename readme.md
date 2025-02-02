@@ -98,9 +98,10 @@ curl -X POST "http://localhost:4000/api/triggers" \
      -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
      -d '{
            "type": "scheduled",
-           "schedule": "*/10 * * * *", 
+           "schedule": "in 10 seconds", 
            "endpoint": null,
-           "payload": null
+           "payload": null,
+           "oneTime":false,
          }'
 ```
 

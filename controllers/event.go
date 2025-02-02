@@ -62,12 +62,27 @@ func ExecuteTrigger(c *gin.Context) {
 // @Router /events [get]
 // @Security BearerAuth
 func GetActiveEvents(c *gin.Context) {
-	db := postgres.GetDB()
+	redisClient := redis_client.RedisSession()
+	cached, err := redisClient.Get("activeEvents").Result()
+	if err == nil && cached != "" {
+		// We have data in Redis
+		var events []models.EventLog
+		if jsonErr := json.Unmarshal([]byte(cached), &events); jsonErr == nil {
+			c.JSON(http.StatusOK, events)
+			return
+		}
+	}
 
+	// Otherwise, fall back to DB
+	db := postgres.GetDB()
 	var events []models.EventLog
 	db.Where("status = ?", "active").Find(&events)
-	c.JSON(http.StatusOK, events)
 
+	// Cache the results in Redis for next time
+	eventBytes, _ := json.Marshal(events)
+	redisClient.Set("activeEvents", eventBytes, 2*time.Hour)
+
+	c.JSON(http.StatusOK, events)
 }
 
 // @Summary Get archived event logs
@@ -77,10 +92,23 @@ func GetActiveEvents(c *gin.Context) {
 // @Router /events/archived [get]
 // @Security BearerAuth
 func GetArchivedEvents(c *gin.Context) {
+	redisClient := redis_client.RedisSession()
+	cached, err := redisClient.Get("archivedEvents").Result()
+	if err == nil && cached != "" {
+		var events []models.EventLog
+		if jsonErr := json.Unmarshal([]byte(cached), &events); jsonErr == nil {
+			c.JSON(http.StatusOK, events)
+			return
+		}
+	}
+
 	db := postgres.GetDB()
 
 	var events []models.EventLog
 	db.Where("status = ?", "archived").Find(&events)
+	eventBytes, _ := json.Marshal(events)
+	redisClient.Set("archivedEvents", eventBytes, 2*time.Hour)
+
 	c.JSON(http.StatusOK, events)
 
 }
@@ -96,7 +124,9 @@ func PurgeOldEvents(c *gin.Context) {
 	// Delete logs older than 48 hours
 	timeThreshold := time.Now().Add(-48 * time.Hour)
 	db.Where("triggered_at < ?", timeThreshold).Delete(&models.EventLog{})
-
+	redisClient := redis_client.RedisSession()
+	redisClient.Del("activeEvents")
+	redisClient.Del("archivedEvents")
 	c.JSON(http.StatusOK, gin.H{"message": "Old events purged"})
 
 }
