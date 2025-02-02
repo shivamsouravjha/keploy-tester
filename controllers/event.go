@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"segwise/clients/postgres"
 	redis_client "segwise/clients/redis"
@@ -140,6 +141,6 @@ func TestScheduledTrigger(c *gin.Context) {
 		zap.L().Info("One-time scheduled trigger executed for testing")
 	}()
 
-	c.JSON(http.StatusOK, gin.H{"message": "Test scheduled trigger will fire in", "delay": request.Delay, "minutes": true})
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Test scheduled trigger will fire in %d", request.Delay), "delay": request.Delay, "minutes": true})
 
 }
