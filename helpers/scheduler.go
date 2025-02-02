@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"encoding/json"
-	"log"
 	"segwise/clients/postgres"
 	redis_client "segwise/clients/redis"
 	"segwise/models"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/go-redis/redis"
 	cron "github.com/robfig/cron/v3"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -65,15 +65,28 @@ func (s *Scheduler) syncTriggers() {
 
 		// If trigger is new, add it
 		if _, exists := s.Jobs[trigger.ID]; !exists {
-			jobID, err := s.Cron.AddFunc(trigger.Schedule, func() {
-				s.executeScheduledTrigger(trigger)
-			})
-			if err != nil {
-				log.Println("Failed to schedule trigger:", err)
-				continue
+			if trigger.OneTime {
+				duration, err := time.ParseDuration(trigger.Schedule) // Example: "10m"
+				if err == nil {
+					go func(t models.Trigger) {
+						time.Sleep(duration)
+						s.executeScheduledTrigger(t)
+					}(trigger)
+					zap.L().Info("Scheduled one-time trigger: %s in %s", zap.Any("triggerID", trigger.ID), zap.Any("scheduler", trigger.Schedule))
+				} else {
+					zap.L().Error("Invalid one-time schedule:", zap.Error(err))
+				}
+			} else {
+				jobID, err := s.Cron.AddFunc(trigger.Schedule, func() {
+					s.executeScheduledTrigger(trigger)
+				})
+				if err != nil {
+					zap.L().Error("Failed to schedule trigger:", zap.Error(err))
+					continue
+				}
+				s.Jobs[trigger.ID] = jobID
+				zap.L().Info("Scheduled new trigger:", zap.Any("triggerID", trigger.ID), zap.Any("scheduler", trigger.Schedule))
 			}
-			s.Jobs[trigger.ID] = jobID
-			log.Printf("Scheduled new trigger: %s (%s)", trigger.ID, trigger.Schedule)
 		}
 	}
 
@@ -82,7 +95,7 @@ func (s *Scheduler) syncTriggers() {
 		if !activeTriggerIDs[triggerID] {
 			s.Cron.Remove(jobID)
 			delete(s.Jobs, triggerID)
-			log.Printf("Removed trigger: %s", triggerID)
+			zap.L().Info("Removed trigger: %s", zap.Any("triggerID", triggerID))
 		}
 	}
 }
@@ -103,5 +116,14 @@ func (s *Scheduler) executeScheduledTrigger(trigger models.Trigger) {
 	eventJSON, _ := json.Marshal(event)
 	s.Redis.Set("event:"+trigger.ID, eventJSON, 2*time.Hour)
 
-	log.Printf("Executed scheduled trigger: %s", trigger.ID)
+	zap.L().Info("Executed scheduled trigger: %s", zap.Any("triggerID", trigger.ID))
+	if trigger.OneTime {
+		s.Mutex.Lock()
+		defer s.Mutex.Unlock()
+		if jobID, exists := s.Jobs[trigger.ID]; exists {
+			s.Cron.Remove(jobID)
+			delete(s.Jobs, trigger.ID)
+			zap.L().Info("One-time trigger removed: %s", zap.Any("triggerID", trigger.ID))
+		}
+	}
 }

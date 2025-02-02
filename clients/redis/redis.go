@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"crypto/tls"
 	"segwise/config"
 	_ "segwise/utils"
 
@@ -19,10 +18,9 @@ func init() {
 
 	// Connect to the Redis server
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:      config.Get().RedisAddr,     // Redis server address
-		Password:  config.Get().RedisPassword, // No password for local Redis, set it if needed
-		DB:        0,                          // Default DB
-		TLSConfig: &tls.Config{},              // Enable TLS
+		Addr:     config.Get().RedisAddr,     // Redis server address
+		Password: config.Get().RedisPassword, // No password for local Redis, set it if needed
+		DB:       0,                          // Default DB
 	})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {

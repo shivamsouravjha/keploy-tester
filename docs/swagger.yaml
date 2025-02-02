@@ -10,6 +10,21 @@ definitions:
     - password
     - username
     type: object
+  controllers.ScheduledTriggerTestRequest:
+    properties:
+      delay:
+        description: Delay in minutes
+        type: integer
+    type: object
+  controllers.TriggerRequest:
+    properties:
+      endpoint:
+        type: string
+      payload:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
   models.EventLog:
     properties:
       id:
@@ -35,6 +50,8 @@ definitions:
         type: string
       id:
         type: string
+      one_time:
+        type: boolean
       payload:
         type: string
       schedule:
@@ -301,6 +318,73 @@ paths:
       summary: Manually execute a trigger
       tags:
       - Triggers
+  /triggers/test/api:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint sends an API request with a **test payload** to a
+        specified endpoint without saving it as a trigger.
+      parameters:
+      - description: API endpoint and payload to test
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.TriggerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Trigger executed successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Error in executing API trigger
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Test a one-time API trigger
+      tags:
+      - Testing API
+  /triggers/test/scheduled:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows users to test a scheduled event trigger **without
+        saving it permanently**.
+      parameters:
+      - description: Request body for scheduled trigger test
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.ScheduledTriggerTestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Trigger executed successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Test a one-time scheduled trigger
+      tags:
+      - Testing API
 securityDefinitions:
   BearerAuth:
     in: header
