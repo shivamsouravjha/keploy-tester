@@ -564,7 +564,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "payload": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "status": {
                     "description": "\"active\", \"archived\"",
@@ -598,7 +598,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "payload": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "schedule": {
                     "type": "string"

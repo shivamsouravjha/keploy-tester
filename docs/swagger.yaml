@@ -30,7 +30,7 @@ definitions:
       id:
         type: string
       payload:
-        type: string
+        type: object
       status:
         description: '"active", "archived"'
         type: string
@@ -53,7 +53,7 @@ definitions:
       one_time:
         type: boolean
       payload:
-        type: string
+        type: object
       schedule:
         type: string
       type:
