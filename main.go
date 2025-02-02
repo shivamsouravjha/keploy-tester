@@ -44,7 +44,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func GracefulShutdown(server *http.Server) {
+func GracefulShutdown(server *http.Server, scheduler *helpers.Scheduler) {
 	stopper := make(chan os.Signal, 1)
 	// Listen for interrupt and SIGTERM signals
 	signal.Notify(stopper, os.Interrupt, syscall.SIGTERM)
@@ -52,6 +52,8 @@ func GracefulShutdown(server *http.Server) {
 	go func() {
 		<-stopper
 		zap.L().Info("Shutting down gracefully...")
+
+		scheduler.Cron.Stop()
 
 		// Create a context with a timeout for shutdown
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -85,7 +87,8 @@ func main() {
 	router.Use(CORSMiddleware())
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	routes.Routes(router)
-	go helpers.StartScheduler()
+	scheduler := helpers.StartScheduler()
+	helpers.StartEventRetentionScheduler()
 
 	server := &http.Server{
 		Addr:    ":" + port,
@@ -93,7 +96,7 @@ func main() {
 	}
 	docs.SwaggerInfo.Host = config.Get().Host
 
-	GracefulShutdown(server)
+	GracefulShutdown(server, scheduler)
 
 	// Start the server
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {

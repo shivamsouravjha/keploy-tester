@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"segwise/clients/postgres"
 	"segwise/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -127,5 +130,50 @@ func DeleteTrigger(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Trigger deleted"})
+
+}
+
+type TriggerRequest struct {
+	Endpoint string            `json:"endpoint"`
+	Payload  map[string]string `json:"payload"`
+}
+
+// TestAPITrigger
+// @Summary Test a one-time API trigger
+// @Description This endpoint sends an API request with a **test payload** to a specified endpoint without saving it as a trigger.
+// @Tags Testing API
+// @Accept json
+// @Produce json
+// @Param request body TriggerRequest{Endpoint string `json:"endpoint"`; Payload map[string]string `json:"payload"`} true "API endpoint and payload to test"
+// @Success 200 {object} map[string]interface{} "Trigger executed successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request payload"
+// @Failure 500 {object} map[string]interface{} "Error in executing API trigger"
+// @Router /triggers/test/api [post]
+func TestAPITrigger(c *gin.Context) {
+	var request TriggerRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	// Simulate API call (without persisting the event)
+	client := &http.Client{Timeout: 10 * time.Second}
+	jsonPayload, _ := json.Marshal(request.Payload)
+
+	req, err := http.NewRequest("POST", request.Endpoint, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to execute API trigger"})
+		return
+	}
+	defer resp.Body.Close()
+
+	c.JSON(http.StatusOK, gin.H{"message": "Test API trigger executed", "response_status": resp.StatusCode})
 
 }

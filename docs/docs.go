@@ -272,6 +272,97 @@ const docTemplate = `{
                 }
             }
         },
+        "/triggers/test/api": {
+            "post": {
+                "description": "This endpoint sends an API request with a **test payload** to a specified endpoint without saving it as a trigger.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Testing API"
+                ],
+                "summary": "Test a one-time API trigger",
+                "parameters": [
+                    {
+                        "description": "API endpoint and payload to test",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TriggerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trigger executed successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Error in executing API trigger",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/triggers/test/scheduled": {
+            "post": {
+                "description": "This endpoint allows users to test a scheduled event trigger **without saving it permanently**.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Testing API"
+                ],
+                "summary": "Test a one-time scheduled trigger",
+                "parameters": [
+                    {
+                        "description": "Request body for scheduled trigger test",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ScheduledTriggerTestRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trigger executed successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/triggers/{id}": {
             "get": {
                 "security": [
@@ -433,6 +524,29 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.ScheduledTriggerTestRequest": {
+            "type": "object",
+            "properties": {
+                "delay": {
+                    "description": "Delay in minutes",
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.TriggerRequest": {
+            "type": "object",
+            "properties": {
+                "endpoint": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "models.EventLog": {
             "type": "object",
             "properties": {
@@ -469,6 +583,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "one_time": {
+                    "type": "boolean"
                 },
                 "payload": {
                     "type": "string"

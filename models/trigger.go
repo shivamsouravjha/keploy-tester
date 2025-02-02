@@ -12,4 +12,5 @@ type Trigger struct {
 	Payload   string    `gorm:"type:jsonb"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	OneTime   bool      `json:"one_time"`
 }

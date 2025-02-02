@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // ExecuteTrigger manually triggers an event
@@ -96,5 +97,48 @@ func PurgeOldEvents(c *gin.Context) {
 	db.Where("triggered_at < ?", timeThreshold).Delete(&models.EventLog{})
 
 	c.JSON(http.StatusOK, gin.H{"message": "Old events purged"})
+
+}
+
+type ScheduledTriggerTestRequest struct {
+	Delay int `json:"delay"` // Delay in minutes
+}
+
+// TestScheduledTrigger
+// @Summary Test a one-time scheduled trigger
+// @Description This endpoint allows users to test a scheduled event trigger **without saving it permanently**.
+// @Tags Testing API
+// @Accept json
+// @Produce json
+// @Param request body ScheduledTriggerTestRequest true "Request body for scheduled trigger test"
+// @Success 200 {object} map[string]interface{} "Trigger executed successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request payload"
+// @Router /triggers/test/scheduled [post]
+func TestScheduledTrigger(c *gin.Context) {
+	redisClient := redis_client.RedisSession()
+	var request ScheduledTriggerTestRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	go func() {
+		time.Sleep(time.Duration(request.Delay) * time.Minute)
+
+		// Simulate event execution
+		event := models.EventLog{
+			TriggeredAt: time.Now(),
+			Type:        "scheduled",
+			Status:      "test",
+		}
+
+		// Store event temporarily in Redis for quick lookup (expires in 1 hour)
+		eventJSON, _ := json.Marshal(event)
+		redisClient.Set("test_event", eventJSON, 1*time.Hour)
+
+		zap.L().Info("One-time scheduled trigger executed for testing")
+	}()
+
+	c.JSON(http.StatusOK, gin.H{"message": "Test scheduled trigger will fire in", "delay": request.Delay, "minutes": true})
 
 }
