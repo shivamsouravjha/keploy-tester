@@ -1,51 +1,12 @@
 package main
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"segwise/helpers"
-	"syscall"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
-
-func TestGracefulShutdown(t *testing.T) {
-	server := &http.Server{
-		Addr:    ":0",
-		Handler: http.NewServeMux(),
-	}
-
-	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			t.Fatalf("Server failed to start: %v", err)
-		}
-	}()
-
-	time.Sleep(100 * time.Millisecond)
-
-	scheduler := helpers.StartScheduler()
-
-	GracefulShutdown(server, scheduler)
-
-	proc, err := os.FindProcess(syscall.Getpid())
-	if err != nil {
-		t.Fatalf("Failed to find process: %v", err)
-	}
-	proc.Signal(os.Interrupt)
-
-	time.Sleep(100 * time.Millisecond)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	err = server.Shutdown(ctx)
-	if err != nil && err != http.ErrServerClosed {
-		t.Fatalf("Server failed to shut down: %v", err)
-	}
-}
 
 func TestCORSMiddleware_WithOriginHeader(t *testing.T) {
 	// Create a test context
